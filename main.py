@@ -141,7 +141,8 @@ def training_task(project_id, q):
         q.put({"time":time.time(), "event": "initial", "msg" : "Start training step 2 ... training"})
         cmd = "python train.py -d custom --cuda -v slim_yolo_v2 -hr -ms"
         
-        subprocess.run(cmd, cwd=project_folder, shell=True)
+        #subprocess.run(cmd, cwd="./", shell=True)
+        subprocess.run(cmd, shell=True)
         # 3 ========== training ========= #
         
     finally:

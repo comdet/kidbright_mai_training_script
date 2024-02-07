@@ -47,7 +47,9 @@ def parse_args():
     parser.add_argument('-v', '--version', default='slim_yolo_v2',
                         help='yolo_v2, yolo_v3, yolo_v3_spp, slim_yolo_v2, tiny_yolo_v3')
     parser.add_argument('-d', '--dataset', default='widerface',
-                        help='voc or coco or custom')
+                        help='custom or kbai')
+    parser.add_argument('-p', '--project', default='kbmai',
+                        help='dataset project name')
     parser.add_argument('-hr', '--high_resolution', action='store_true', default=True,
                         help='use high resolution to pretrain.')  
     parser.add_argument('-ms', '--multi_scale', action='store_true', default=True,
@@ -125,53 +127,7 @@ def train():
     print("----------------------------------------------------------")
     print('Loading the dataset...')
 
-    if args.dataset == 'voc':
-        data_dir = VOC_ROOT
-        num_classes = len(VOC_CLASSES)
-        dataset = VOCDetection(root=data_dir, 
-                                transform=SSDAugmentation(train_size)
-                                )
-
-        evaluator = VOCAPIEvaluator(data_root=data_dir,
-                                    img_size=val_size,
-                                    device=device,
-                                    transform=BaseTransform(val_size),
-                                    labelmap=VOC_CLASSES
-                                    )
-
-    elif args.dataset == 'coco':
-        data_dir = coco_root
-        num_classes = 80
-        dataset = COCODataset(
-                    data_dir=data_dir,
-                    img_size=train_size[0],
-                    transform=SSDAugmentation(train_size),
-                    debug=args.debug)
-
-
-        evaluator = COCOAPIEvaluator(
-                        data_dir=data_dir,
-                        img_size=val_size,
-                        device=device,
-                        transform=BaseTransform(val_size)
-                        )
-    
-    elif args.dataset == 'widerface':
-
-        data_dir = WIDERFACE_ROOT
-        num_classes = len(WIDERFACE_CLASSES)
-        dataset = WiderfaceDetection(root=data_dir, 
-                                transform=SSDAugmentation(train_size)
-                                )
-
-        evaluator = WiderfaceAPIEvaluator(data_root=data_dir,
-                                    img_size=val_size,
-                                    device=device,
-                                    transform=BaseTransform(val_size),
-                                    labelmap=WIDERFACE_CLASSES,
-                                    use_horovod=use_horovod
-                                    )
-    elif args.dataset == 'custom':
+    if args.dataset == 'custom':
 
         data_dir = CUSTOM_ROOT
         num_classes = len(CUSTOM_CLASSES)
