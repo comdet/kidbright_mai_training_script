@@ -33,7 +33,7 @@ def ping():
 @app.route('/upload', methods=['POST'])
 def upload():
     if request.method == 'POST':
-        f = request.files['file']
+        f = request.files['project']
         f.save(f.filename)
         return jsonify({'response': 'success'})
 
@@ -114,24 +114,24 @@ def send_report(path):
     return send_from_directory('projects', path)
 
 
-@app.route('/upload', methods=["POST"])
-def upload():
-    if request.method == "POST":
-        files = request.files.getlist("dataset")
-        project_id = request.form['project_id']
-        project_path = os.path.join(PROJECT_PATH, project_id)
-        dataset_raw_path = os.path.join(PROJECT_PATH, project_id, RAW_DATASET_FOLDER)
-        for file in files:
-            target_path = os.path.join(dataset_raw_path,file.filename)
-            file.save(target_path)
-        if BACKEND == "EDGE":
-            # sync model file if needed
-            other_file = request.files.getlist("other")
-            for file in other_file:
-                target_path = os.path.join(project_path,file.filename)
-                file.save(target_path)
+# @app.route('/upload', methods=["POST"])
+# def upload():
+#     if request.method == "POST":
+#         files = request.files.getlist("dataset")
+#         project_id = request.form['project_id']
+#         project_path = os.path.join(PROJECT_PATH, project_id)
+#         dataset_raw_path = os.path.join(PROJECT_PATH, project_id, RAW_DATASET_FOLDER)
+#         for file in files:
+#             target_path = os.path.join(dataset_raw_path,file.filename)
+#             file.save(target_path)
+#         if BACKEND == "EDGE":
+#             # sync model file if needed
+#             other_file = request.files.getlist("other")
+#             for file in other_file:
+#                 target_path = os.path.join(project_path,file.filename)
+#                 file.save(target_path)
 
-    return jsonify({"result":"OK"})
+#     return jsonify({"result":"OK"})
 
 @app.route("/start_training", methods=["POST"])
 def start_training():
