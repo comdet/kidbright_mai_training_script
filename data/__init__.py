@@ -1,7 +1,4 @@
-from .voc0712 import VOCDetection, VOCAnnotationTransform, VOC_CLASSES, VOC_ROOT
-from .widerface import WiderfaceDetection, WiderfaceAnnotationTransform, WIDERFACE_CLASSES, WIDERFACE_ROOT
 from .custom import CustomDetection, CustomAnnotationTransform, CUSTOM_CLASSES, CUSTOM_ROOT
-from .cocodataset import COCODataset, coco_root, coco_class_labels, coco_class_index
 from .config import *
 import torch
 import cv2
