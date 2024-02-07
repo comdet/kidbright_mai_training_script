@@ -122,7 +122,6 @@ def send_report(path):
 
 def training_task(project_id, q):
     global STAGE, current_model
-    K.clear_session()
     try:
         # 1 ========== prepare project ========= #
         STAGE = 1
