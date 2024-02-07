@@ -79,6 +79,16 @@ def upload():
 def train():
     if request.method == 'POST':
         data = request.json
+        # unzip project
+        project_id = data["project"]
+        project_path = os.path.join(PROJECT_PATH, project_id)
+        project_zip = os.path.join(project_path, PROJECT_ZIP)
+        with zipfile.ZipFile(project_zip, 'r') as zip_ref:
+            zip_ref.extractall(project_path)
+        # start trainings
+        train_config = data["train_config"]
+        
+        
         return jsonify({'response': 'success', 'data': data})
     elif request.method == 'GET':
         return jsonify({'response': 'success'})
