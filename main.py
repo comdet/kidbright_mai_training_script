@@ -48,6 +48,7 @@ print("BACKEND : " + BACKEND)
 print("DEVICE : " + DEVICE)
 PROJECT_PATH = "./projects" if BACKEND == "COLAB" else "./projects"
 PROJECT_FILENAME = "project.json"
+PROJECT_ZIP = "project.zip"
 OUTPUT_FOLDER = "output"
 TEMP_FOLDER = "temp"
 
@@ -65,12 +66,13 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    if request.method == 'POST':
-        print(request.files)
+    if request.method == 'POST':        
         f = request.files['project']
-        print(f.filename)
+        project_id = request.form['project_id']
+        project_path = os.path.join(PROJECT_PATH, project_id)
+        helper.create_not_exist(project_path)
+        f.save(os.path.join(project_path, PROJECT_ZIP))
         
-        f.save(f.filename)
         return jsonify({'response': 'success'})
 
 @app.route('/train', methods=['POST'])
