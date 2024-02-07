@@ -3,7 +3,7 @@ from data import *
 import torch.nn as nn
 import torch.nn.functional as F
 
-CLASS_COLOR = [(np.random.randint(255),np.random.randint(255),np.random.randint(255)) for _ in range(len(VOC_CLASSES))]
+CLASS_COLOR = [(np.random.randint(255),np.random.randint(255),np.random.randint(255)) for _ in range(len(64))]
 # We use ignore thresh to decide which anchor box can be kept.
 ignore_thresh = IGNORE_THRESH
 
