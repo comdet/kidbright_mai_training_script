@@ -16,9 +16,6 @@ from data import *
 import tools
 
 from utils.augmentations import SSDAugmentation
-from utils.cocoapi_evaluator import COCOAPIEvaluator
-from utils.vocapi_evaluator import VOCAPIEvaluator
-from utils.widerfaceapi_evaluator import WiderfaceAPIEvaluator
 from utils.customapi_evaluator import CustomAPIEvaluator
 
 
