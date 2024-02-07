@@ -66,7 +66,10 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     if request.method == 'POST':
+        print(request.files)
         f = request.files['project']
+        print(f.filename)
+        
         f.save(f.filename)
         return jsonify({'response': 'success'})
 
