@@ -73,7 +73,7 @@ def upload():
         helper.create_not_exist(project_path)
         f.save(os.path.join(project_path, PROJECT_ZIP))
         
-        return jsonify({'response': 'success'})
+        return jsonify({'result': 'success'})
 
 @app.route('/train', methods=['POST'])
 def train():
@@ -87,11 +87,11 @@ def train():
             zip_ref.extractall(project_path)
         # start trainings
         train_config = data["train_config"]
+
         
-        
-        return jsonify({'response': 'success', 'data': data})
+        return jsonify({'result': 'success', 'data': data})
     elif request.method == 'GET':
-        return jsonify({'response': 'success'})
+        return jsonify({'result': 'success'})
 
 @app.route('/ping', methods=["GET","POST"])
 def on_ping():
