@@ -19,6 +19,7 @@ import cv2
 import utils.helper as helper
 sys.path.append(".")
 
+
 app = Flask(__name__)
 
 #==================================== Define Variables ====================================#
@@ -54,6 +55,10 @@ TEMP_FOLDER = "temp"
 
 STAGE = 0 #0 none, 1 = prepare dataset, 2 = training, 3 = trained, 4 = converting, 5 converted
 
+report_queue = queue.Queue()
+train_task = None
+report_task = None
+
 #==================================== Server Configuration ====================================#
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -75,23 +80,15 @@ def upload():
         
         return jsonify({'result': 'success'})
 
-@app.route('/train', methods=['POST'])
-def train():
-    if request.method == 'POST':
-        data = request.json
-        # unzip project
-        project_id = data["project"]
-        project_path = os.path.join(PROJECT_PATH, project_id)
-        project_zip = os.path.join(project_path, PROJECT_ZIP)
-        with zipfile.ZipFile(project_zip, 'r') as zip_ref:
-            zip_ref.extractall(project_path)
-        # start trainings
-        train_config = data["train_config"]
-
-        
-        return jsonify({'result': 'success', 'data': data})
-    elif request.method == 'GET':
-        return jsonify({'result': 'success'})
+@app.route("/train", methods=["POST"])
+def start_training():
+    global train_task, report_queue
+    print("start training process")
+    data = request.get_json()
+    project_id = data["project"]
+    train_task = threading.Thread(target=training_task, args=(project_id,report_queue,))
+    train_task.start()
+    return jsonify({"result" : "OK"})
 
 @app.route('/ping', methods=["GET","POST"])
 def on_ping():
@@ -123,34 +120,35 @@ def after_request(response):
 def send_report(path):
     return send_from_directory('projects', path)
 
+def training_task(project_id, q):
+    global STAGE, current_model
+    K.clear_session()
+    try:
+        # 1 ========== prepare project ========= #
+        STAGE = 1
+        q.put({"time":time.time(), "event": "initial", "msg" : "Start training step 1 ... prepare dataset"})
+        # unzip project
+        project_zip = os.path.join(PROJECT_PATH, project_id, PROJECT_ZIP)
+        project_folder = os.path.join(PROJECT_PATH, project_id)
+        with zipfile.ZipFile(project_zip, 'r') as zip_ref:
+            zip_ref.extractall(project_folder)
+        os.remove(project_zip)
+        # read project file
+        project = helper.read_json_file(os.path.join(PROJECT_PATH, project_id, PROJECT_FILENAME))        
+        q.put({"time":time.time(), "event": "initial", "msg" : "target project id : "+project_id})
+        # 2 ========== prepare dataset ========= #
+        STAGE = 2
+        # execute script "!python train.py -d custom --cuda -v slim_yolo_v2 -hr -ms"
+        q.put({"time":time.time(), "event": "initial", "msg" : "Start training step 2 ... training"})
+        cmd = "python train.py -d custom --cuda -v slim_yolo_v2 -hr -ms"
+        
+        subprocess.run(cmd, cwd=project_folder, shell=True)
+        # 3 ========== training ========= #
+        
+    finally:
+        print("Thread ended")
 
-# @app.route('/upload', methods=["POST"])
-# def upload():
-#     if request.method == "POST":
-#         files = request.files.getlist("dataset")
-#         project_id = request.form['project_id']
-#         project_path = os.path.join(PROJECT_PATH, project_id)
-#         dataset_raw_path = os.path.join(PROJECT_PATH, project_id, RAW_DATASET_FOLDER)
-#         for file in files:
-#             target_path = os.path.join(dataset_raw_path,file.filename)
-#             file.save(target_path)
-#         if BACKEND == "EDGE":
-#             # sync model file if needed
-#             other_file = request.files.getlist("other")
-#             for file in other_file:
-#                 target_path = os.path.join(project_path,file.filename)
-#                 file.save(target_path)
 
-#     return jsonify({"result":"OK"})
-
-@app.route("/start_training", methods=["POST"])
-def start_training():
-    global train_task, report_queue
-    print("start training process")
-    data = request.get_json()
-    train_task = threading.Thread(target=training_task, args=(data,report_queue,))
-    train_task.start()
-    return jsonify({"result" : "OK"})
 
 @app.route("/terminate_training", methods=["POST"])
 def terminate_training():
